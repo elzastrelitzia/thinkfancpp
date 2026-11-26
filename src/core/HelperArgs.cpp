@@ -45,11 +45,27 @@ std::optional<std::string> parse_disable(int argc, char* const argv[]) {
     return "disable";
 }
 
+bool parse_check(int argc, char* const argv[]) {
+    return argc == 2 && std::string_view(argv[1]) == "--check";
+}
+
+bool parse_daemon(int argc, char* const argv[]) {
+    return argc == 2 && std::string_view(argv[1]) == "--daemon";
+}
+
 } // anonymous namespace
 
 std::optional<HelperCommand> parse_helper_args(int argc, char* const argv[]) {
     if (argc < 2) {
         return std::nullopt;
+    }
+
+    if (parse_check(argc, argv)) {
+        return HelperCommand{"", true, false};
+    }
+
+    if (parse_daemon(argc, argv)) {
+        return HelperCommand{"", false, true};
     }
 
     std::optional<std::string> command_line;
@@ -68,7 +84,7 @@ std::optional<HelperCommand> parse_helper_args(int argc, char* const argv[]) {
         return std::nullopt;
     }
 
-    return HelperCommand{*command_line};
+    return HelperCommand{*command_line, false};
 }
 
 } // namespace thinkfan

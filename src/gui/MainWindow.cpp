@@ -149,6 +149,9 @@ MainWindow::MainWindow(QWidget* parent)
 
     QMetaObject::invokeMethod(m_thinkfanWorker, "detect", Qt::QueuedConnection);
     onPollTimer();
+
+    // warm polkit auth cache for session?
+    m_controller->check();
 }
 
 MainWindow::~MainWindow() {
