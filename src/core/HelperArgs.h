@@ -1,0 +1,14 @@
+#pragma once
+
+#include <string>
+#include <optional>
+
+namespace thinkfan {
+
+struct HelperCommand {
+    std::string procfs_line;
+};
+
+std::optional<HelperCommand> parse_helper_args(int argc, char* const argv[]);
+
+} // namespace thinkfan
