@@ -260,21 +260,6 @@ void MainWindow::setupUi() {
     m_disengagedButton = new QPushButton("Disengaged...", controlsGroup);
     controlsLayout->addWidget(m_disengagedButton);
 
-    auto* fanControlRow = new QWidget(controlsGroup);
-    auto* fanControlLayout = new QHBoxLayout(fanControlRow);
-    fanControlLayout->setSpacing(8);
-    fanControlLayout->setContentsMargins(16, 8, 0, 0);
-
-    m_enableButton = new QPushButton("Enable Fan Control", fanControlRow);
-    m_enableButton->setToolTip("Enable fan control (write 'enable' to /proc/acpi/ibm/fan)");
-    fanControlLayout->addWidget(m_enableButton);
-
-    m_disableButton = new QPushButton("Disable Fan Control", fanControlRow);
-    m_disableButton->setToolTip("Disable fan control (write 'disable' to /proc/acpi/ibm/fan)");
-    fanControlLayout->addWidget(m_disableButton);
-
-    controlsLayout->addWidget(fanControlRow);
-
     m_mainLayout->addWidget(controlsGroup);
 
     // status/error label
@@ -298,8 +283,6 @@ void MainWindow::setupConnections() {
 
     connect(m_maxFullSpeedButton, &QPushButton::clicked, this, &MainWindow::onMaxFullSpeedClicked);
     connect(m_disengagedButton, &QPushButton::clicked, this, &MainWindow::onDisengagedClicked);
-    connect(m_enableButton, &QPushButton::clicked, this, &MainWindow::onEnableFanControlClicked);
-    connect(m_disableButton, &QPushButton::clicked, this, &MainWindow::onDisableFanControlClicked);
 
     connect(m_controller.get(), &PrivilegedFanController::commandSucceeded,
             this, &MainWindow::onCommandSucceeded);
@@ -378,8 +361,6 @@ void MainWindow::setControlsEnabled(bool enabled) {
     m_manualSlider->setEnabled(enabled && m_manualRadio->isChecked());
     m_maxFullSpeedButton->setEnabled(enabled);
     m_disengagedButton->setEnabled(enabled);
-    m_enableButton->setEnabled(enabled);
-    m_disableButton->setEnabled(enabled);
 
     if (!enabled) {
         m_statusLabel->setStyleSheet(tokensFor(m_themeMode).statusErrorStyle);
@@ -586,14 +567,6 @@ void MainWindow::onCommandSucceeded(const QString& action) {
 
 void MainWindow::onCommandFailed(const QString& action, const QString& error) {
     showError(QString("Failed to %1: %2").arg(action, error));
-}
-
-void MainWindow::onEnableFanControlClicked() {
-    m_controller->enable();
-}
-
-void MainWindow::onDisableFanControlClicked() {
-    m_controller->disable();
 }
 
 void MainWindow::closeEvent(QCloseEvent* event) {

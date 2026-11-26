@@ -48,8 +48,6 @@ private slots:
     void onDisengagedClicked();
     void onCommandSucceeded(const QString& action);
     void onCommandFailed(const QString& action, const QString& error);
-    void onEnableFanControlClicked();
-    void onDisableFanControlClicked();
     void onTrayIconActivated(QSystemTrayIcon::ActivationReason reason);
     void onTrayShowRequested();
     void onTrayQuitRequested();
@@ -93,8 +91,6 @@ private:
     QLabel* m_manualSliderValueLabel = nullptr;
     QPushButton* m_maxFullSpeedButton = nullptr;
     QPushButton* m_disengagedButton = nullptr;
-    QPushButton* m_enableButton = nullptr;
-    QPushButton* m_disableButton = nullptr;
 
     QTimer m_pollTimer;
     QTimer m_thinkfanCheckTimer;
