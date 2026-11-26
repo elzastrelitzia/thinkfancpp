@@ -254,7 +254,7 @@ void MainWindow::setupUi() {
 
     controlsLayout->addWidget(manualRow);
 
-    m_maxFullSpeedButton = new QPushButton("Max Full-speed", controlsGroup);
+    m_maxFullSpeedButton = new QPushButton("Full-speed", controlsGroup);
     controlsLayout->addWidget(m_maxFullSpeedButton);
 
     m_disengagedButton = new QPushButton("Disengaged...", controlsGroup);
