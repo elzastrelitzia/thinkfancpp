@@ -47,6 +47,7 @@ int main() {
         auto cmd = thinkfan::parse_helper_args(2, argv);
         assert(cmd.has_value());
         assert(cmd->procfs_line == "enable");
+        assert(!cmd->check_only);
     }
 
     // --disable
@@ -56,6 +57,45 @@ int main() {
         auto cmd = thinkfan::parse_helper_args(2, argv);
         assert(cmd.has_value());
         assert(cmd->procfs_line == "disable");
+        assert(!cmd->check_only);
+    }
+
+    // --check
+    {
+        char flag[] = "--check";
+        char* argv[] = {prog, flag};
+        auto cmd = thinkfan::parse_helper_args(2, argv);
+        assert(cmd.has_value());
+        assert(cmd->check_only);
+        assert(!cmd->daemon);
+    }
+
+    // --daemon
+    {
+        char flag[] = "--daemon";
+        char* argv[] = {prog, flag};
+        auto cmd = thinkfan::parse_helper_args(2, argv);
+        assert(cmd.has_value());
+        assert(cmd->daemon);
+        assert(!cmd->check_only);
+    }
+
+    // extra args for --check
+    {
+        char flag[] = "--check";
+        char extra[] = "extra";
+        char* argv[] = {prog, flag, extra};
+        auto cmd = thinkfan::parse_helper_args(3, argv);
+        assert(!cmd.has_value());
+    }
+
+    // extra args for --daemon
+    {
+        char flag[] = "--daemon";
+        char extra[] = "extra";
+        char* argv[] = {prog, flag, extra};
+        auto cmd = thinkfan::parse_helper_args(3, argv);
+        assert(!cmd.has_value());
     }
 
     // invalid level (out of range)
