@@ -10,7 +10,11 @@ case "${1:-}" in
     exit 0
     ;;
   --uninstall)
-    sudo rm -f /usr/local/bin/thinkfancpp /usr/local/bin/thinkfancpp-helper /usr/local/share/polkit-1/actions/com.thinkfancpp.helper.policy
+    sudo rm -f /usr/local/bin/thinkfancpp /usr/local/bin/thinkfancpp-helper \
+      /usr/local/share/polkit-1/actions/com.thinkfancpp.helper.policy \
+      /usr/local/share/applications/thinkfancpp.desktop \
+      /usr/local/share/icons/hicolor/1280x1280/apps/thinkfancpp.png \
+      /usr/local/share/pixmaps/thinkfancpp.png
     exit 0
     ;;
   --install)

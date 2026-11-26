@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=thinkfancpp
+Exec=thinkfancpp
+Icon=thinkfancpp
+Type=Application
+Terminal=false
+Categories=Utility;System;
+StartupNotify=true
