@@ -11,7 +11,7 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
 # Qt6
-find_package(Qt6 REQUIRED COMPONENTS Widgets Core Concurrent Svg)
+find_package(Qt6 REQUIRED COMPONENTS Widgets Core Concurrent Svg DBus)
 
 # GNU standard install directories
 include(GNUInstallDirs)
@@ -54,7 +54,7 @@ target_compile_definitions(thinkfancpp_core PRIVATE
     HELPER_INSTALL_PATH="${HELPER_INSTALL_FULL_BINDIR}"
 )
 
-target_link_libraries(thinkfancpp_core PUBLIC Qt6::Core Qt6::Widgets Qt6::Concurrent Qt6::Svg)
+target_link_libraries(thinkfancpp_core PUBLIC Qt6::Core Qt6::Widgets Qt6::Concurrent Qt6::DBus Qt6::Svg)
 
 # GUI executable
 add_executable(thinkfancpp

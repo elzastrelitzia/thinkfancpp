@@ -1,8 +1,14 @@
 #include <cassert>
+#include <cstdint>
+
+#include <QDBusVariant>
+#include <QVariant>
+
 #include "gui/Theme.h"
 
 int main() {
     using thinkfan::ThemeMode;
+    using thinkfan::parsePortalColorScheme;
     using thinkfan::themeModeFromPortalValue;
     using thinkfan::tokensFor;
 
@@ -16,5 +22,17 @@ int main() {
     assert(dark.statusErrorStyle != light.statusErrorStyle);
     assert(dark.warningStyle.contains("#"));
     assert(light.warningStyle.contains("#"));
+
+    const QVariant nested = QVariant::fromValue(
+        QDBusVariant(QVariant::fromValue(QDBusVariant(QVariant::fromValue(uint32_t{1})))));
+    const auto nestedValue = parsePortalColorScheme(nested);
+    assert(nestedValue.has_value() && *nestedValue == 1);
+
+    const auto plainValue = parsePortalColorScheme(QVariant::fromValue(uint32_t{2}));
+    assert(plainValue.has_value() && *plainValue == 2);
+
+    const auto invalidValue = parsePortalColorScheme(QVariant(QStringLiteral("nope")));
+    assert(!invalidValue.has_value());
+
     return 0;
 }

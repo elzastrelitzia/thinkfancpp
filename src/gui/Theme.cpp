@@ -1,6 +1,7 @@
 #include "gui/Theme.h"
 
 #include <QColor>
+#include <QDBusVariant>
 
 namespace thinkfan {
 
@@ -126,6 +127,28 @@ ThemeMode themeModeFromPortalValue(uint32_t value) {
 
 ThemeMode themeModeFromColorScheme(Qt::ColorScheme scheme) {
     return scheme == Qt::ColorScheme::Dark ? ThemeMode::Dark : ThemeMode::Light;
+}
+
+std::optional<uint32_t> parsePortalColorScheme(const QVariant& value) {
+    QVariant current = value;
+    for (int depth = 0; depth < 8 && current.isValid(); ++depth) {
+        if (current.userType() == qMetaTypeId<QDBusVariant>()) {
+            current = current.value<QDBusVariant>().variant();
+            continue;
+        }
+        if (current.metaType() == QMetaType::fromType<QVariant>()) {
+            current = current.value<QVariant>();
+            continue;
+        }
+
+        bool ok = false;
+        const uint valueAsUInt = current.toUInt(&ok);
+        if (ok) {
+            return static_cast<uint32_t>(valueAsUInt);
+        }
+        return std::nullopt;
+    }
+    return std::nullopt;
 }
 
 const ThemeTokens& tokensFor(ThemeMode mode) {

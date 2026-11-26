@@ -3,7 +3,9 @@
 #include <QPalette>
 #include <QString>
 #include <Qt>
+#include <QVariant>
 #include <cstdint>
+#include <optional>
 
 namespace thinkfan {
 
@@ -25,6 +27,7 @@ struct ThemeTokens {
 
 ThemeMode themeModeFromPortalValue(uint32_t value);
 ThemeMode themeModeFromColorScheme(Qt::ColorScheme scheme);
+std::optional<uint32_t> parsePortalColorScheme(const QVariant& value);
 const ThemeTokens& tokensFor(ThemeMode mode);
 
 } // namespace thinkfan

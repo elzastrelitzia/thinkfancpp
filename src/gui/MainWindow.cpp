@@ -4,6 +4,10 @@
 #include <QButtonGroup>
 #include <QCheckBox>
 #include <QCloseEvent>
+#include <QDBusConnection>
+#include <QDBusInterface>
+#include <QDBusReply>
+#include <QDBusVariant>
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QFile>
@@ -20,6 +24,7 @@
 #include <QSpacerItem>
 #include <QStyle>
 #include <QStyleFactory>
+#include <QStyleHints>
 #include <QSystemTrayIcon>
 #include <QVBoxLayout>
 #include <QWidget>
@@ -116,7 +121,7 @@ MainWindow::MainWindow(QWidget* parent)
     qApp->setStyle(QStyleFactory::create("Fusion"));
     setupUi();
     setupConnections();
-    applyTheme(ThemeMode::Light);
+    setupThemeFollow();
 
     // system tray
     m_trayIcon = new QSystemTrayIcon(trayIcon, this);
@@ -458,6 +463,67 @@ void MainWindow::applySemanticStyles() {
     m_disengagedButton->setStyleSheet(tokens.dangerButtonStyle);
 }
 
+void MainWindow::setupThemeFollow() {
+    QDBusConnection sessionBus = QDBusConnection::sessionBus();
+    if (sessionBus.isConnected()) {
+        sessionBus.connect(
+            QStringLiteral("org.freedesktop.portal.Desktop"),
+            QStringLiteral("/org/freedesktop/portal/desktop"),
+            QStringLiteral("org.freedesktop.portal.Settings"),
+            QStringLiteral("SettingChanged"),
+            this,
+            SLOT(onPortalSettingChanged(QString,QString,QDBusVariant)));
+    }
+
+    if (QGuiApplication* app = qobject_cast<QGuiApplication*>(QCoreApplication::instance())) {
+        if (QStyleHints* hints = app->styleHints()) {
+            connect(hints, &QStyleHints::colorSchemeChanged, this, [this](Qt::ColorScheme) {
+                applySystemThemeFallback();
+            });
+        }
+    }
+
+    if (sessionBus.isConnected()) {
+        QDBusInterface portal(
+            QStringLiteral("org.freedesktop.portal.Desktop"),
+            QStringLiteral("/org/freedesktop/portal/desktop"),
+            QStringLiteral("org.freedesktop.portal.Settings"),
+            sessionBus,
+            this);
+        if (portal.isValid()) {
+            const QDBusReply<QVariant> reply = portal.call(
+                QStringLiteral("Read"),
+                QStringLiteral("org.freedesktop.appearance"),
+                QStringLiteral("color-scheme"));
+            if (reply.isValid()) {
+                applyPortalThemeValue(reply.value());
+                return;
+            }
+        }
+    }
+
+    applySystemThemeFallback();
+}
+
+void MainWindow::applyPortalThemeValue(const QVariant& value) {
+    const auto scheme = parsePortalColorScheme(value);
+    if (scheme.has_value()) {
+        applyTheme(themeModeFromPortalValue(*scheme));
+        return;
+    }
+    applySystemThemeFallback();
+}
+
+void MainWindow::applySystemThemeFallback() {
+    Qt::ColorScheme scheme = Qt::ColorScheme::Unknown;
+    if (const QGuiApplication* app = qobject_cast<QGuiApplication*>(QCoreApplication::instance())) {
+        if (const QStyleHints* hints = app->styleHints()) {
+            scheme = hints->colorScheme();
+        }
+    }
+    applyTheme(themeModeFromColorScheme(scheme));
+}
+
 QString MainWindow::formatFanLevel(const std::string& level) const {
     if (level.empty() || level == "unknown") {
         return "—";
@@ -581,6 +647,13 @@ void MainWindow::onTrayQuitRequested() {
         m_trayIcon->hide();
     }
     close();
+}
+
+void MainWindow::onPortalSettingChanged(const QString& namespaceName, const QString& key, const QDBusVariant& value) {
+    if (namespaceName == QStringLiteral("org.freedesktop.appearance")
+        && key == QStringLiteral("color-scheme")) {
+        applyPortalThemeValue(value.variant());
+    }
 }
 
 } // namespace thinkfan

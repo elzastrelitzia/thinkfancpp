@@ -13,6 +13,7 @@
 #include <QSystemTrayIcon>
 #include <QMenu>
 #include <QAction>
+#include <QDBusVariant>
 #include <memory>
 
 #include "core/ProcFanParser.h"
@@ -52,6 +53,7 @@ private slots:
     void onTrayIconActivated(QSystemTrayIcon::ActivationReason reason);
     void onTrayShowRequested();
     void onTrayQuitRequested();
+    void onPortalSettingChanged(const QString& namespaceName, const QString& key, const QDBusVariant& value);
 
 protected:
     void closeEvent(QCloseEvent* event) override;
@@ -67,6 +69,9 @@ private:
     void clearError();
     void applyTheme(ThemeMode mode);
     void applySemanticStyles();
+    void setupThemeFollow();
+    void applyPortalThemeValue(const QVariant& value);
+    void applySystemThemeFallback();
     QString formatFanLevel(const std::string& level) const;
     QString formatTemperature(std::optional<double> temp_c) const;
     QString formatRpm(std::optional<int> rpm) const;
