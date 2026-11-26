@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE policyconfig PUBLIC
+ "-//freedesktop//DTD PolicyKit Policy Configuration 1.0//EN"
+ "http://www.freedesktop.org/standards/PolicyKit/1/policyconfig.dtd">
+<policyconfig>
+  <vendor>thinkfancpp</vendor>
+  <vendor_url>https://github.com/thinkfancpp/thinkfancpp</vendor_url>
+  <icon_name>preferences-system</icon_name>
+
+  <action id="com.thinkfancpp.helper">
+    <description gettext_domain="thinkfancpp">Control ThinkPad fan level</description>
+    <message gettext_domain="thinkfancpp">thinkfancpp-helper is requesting permission to write to /proc/acpi/ibm/fan to change the fan level.</message>
+    <defaults>
+      <allow_any>no</allow_any>
+      <allow_inactive>no</allow_inactive>
+      <allow_active>auth_admin_keep</allow_active>
+    </defaults>
+  </action>
+</policyconfig>
