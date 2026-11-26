@@ -38,6 +38,8 @@ add_library(thinkfancpp_core STATIC
     src/gui/PrivilegedFanController.h
     src/gui/MainWindow.cpp
     src/gui/MainWindow.h
+    src/gui/Theme.cpp
+    src/gui/Theme.h
     assets/thinkfancpp.qrc
 )
 
@@ -103,6 +105,13 @@ if(BUILD_TESTING)
     )
     target_link_libraries(test_sensor_reader PRIVATE thinkfancpp_core)
     add_test(NAME test_sensor_reader COMMAND test_sensor_reader)
+
+    # Theme test
+    add_executable(test_theme
+        tests/test_theme.cpp
+    )
+    target_link_libraries(test_theme PRIVATE thinkfancpp_core)
+    add_test(NAME test_theme COMMAND test_theme)
 endif()
 
 # Install rules
