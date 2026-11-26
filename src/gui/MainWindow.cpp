@@ -7,6 +7,7 @@
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QFile>
+#include <QGuiApplication>
 #include <QHBoxLayout>
 #include <QIcon>
 #include <QLabel>
@@ -18,6 +19,7 @@
 #include <QSlider>
 #include <QSpacerItem>
 #include <QStyle>
+#include <QStyleFactory>
 #include <QSystemTrayIcon>
 #include <QVBoxLayout>
 #include <QWidget>
@@ -111,8 +113,10 @@ MainWindow::MainWindow(QWidget* parent)
     }
     setWindowIcon(appIcon);
 
+    qApp->setStyle(QStyleFactory::create("Fusion"));
     setupUi();
     setupConnections();
+    applyTheme(ThemeMode::Light);
 
     // system tray
     m_trayIcon = new QSystemTrayIcon(trayIcon, this);
@@ -197,16 +201,6 @@ void MainWindow::setupUi() {
     // thinkfan warning banner
     m_thinkfanWarningLabel = new QLabel(m_centralWidget);
     m_thinkfanWarningLabel->setText("⚠ thinkfan.service is active — fan control may conflict");
-    m_thinkfanWarningLabel->setStyleSheet(
-        "QLabel {"
-        "  background-color: #3d3418;"
-        "  border: 1px solid #a67c00;"
-        "  border-radius: 4px;"
-        "  padding: 8px;"
-        "  color: #ffd966;"
-        "  font-weight: bold;"
-        "}"
-    );
     m_thinkfanWarningLabel->setWordWrap(true);
     m_thinkfanWarningLabel->setVisible(false);
     m_mainLayout->addWidget(m_thinkfanWarningLabel);
@@ -259,17 +253,6 @@ void MainWindow::setupUi() {
     controlsLayout->addWidget(m_maxFullSpeedButton);
 
     m_disengagedButton = new QPushButton("Disengaged...", controlsGroup);
-    m_disengagedButton->setStyleSheet(
-        "QPushButton {"
-        "  background-color: #5a1d24;"
-        "  border: 1px solid #8b2c36;"
-        "  color: #ffb3b8;"
-        "  padding: 6px 12px;"
-        "}"
-        "QPushButton:hover {"
-        "  background-color: #6e2430;"
-        "}"
-    );
     controlsLayout->addWidget(m_disengagedButton);
 
     auto* fanControlRow = new QWidget(controlsGroup);
@@ -291,7 +274,6 @@ void MainWindow::setupUi() {
 
     // status/error label
     m_statusLabel = new QLabel(m_centralWidget);
-    m_statusLabel->setStyleSheet("color: #ff6b6b; font-weight: bold;");
     m_statusLabel->setWordWrap(true);
     m_statusLabel->setVisible(false);
     m_mainLayout->addWidget(m_statusLabel);
@@ -351,12 +333,13 @@ void MainWindow::updateUiFromState(const ProcFanState& fanState, const SensorSna
         m_currentLevelDisplay = levelDisplay;
     }
 
+    const ThemeTokens& tokens = tokensFor(m_themeMode);
     if (fanState.readable) {
         m_enabledLabel->setText(QString("Fan Control: %1").arg(fanState.enabled ? "Enabled" : "Disabled"));
-        m_enabledLabel->setStyleSheet(fanState.enabled ? "color: #5fd38d;" : "color: #ff6b6b;");
+        m_enabledLabel->setStyleSheet(fanState.enabled ? tokens.enabledStyle : tokens.disabledStyle);
     } else {
         m_enabledLabel->setText("Fan Control: Unavailable");
-        m_enabledLabel->setStyleSheet("color: #9a9a9a;");
+        m_enabledLabel->setStyleSheet(tokens.unavailableStyle);
     }
 
     updateThinkfanWarning(thinkfanStatus);
@@ -394,6 +377,7 @@ void MainWindow::setControlsEnabled(bool enabled) {
     m_disableButton->setEnabled(enabled);
 
     if (!enabled) {
+        m_statusLabel->setStyleSheet(tokensFor(m_themeMode).statusErrorStyle);
         m_statusLabel->setText("Fan interface unavailable (/proc/acpi/ibm/fan not readable)");
         m_statusLabel->setVisible(true);
     } else {
@@ -429,28 +413,13 @@ void MainWindow::showDisengagedConfirmation() {
         "☐ I understand this can overheat and permanently damage hardware",
         &dialog
     );
-    confirmCheckbox->setStyleSheet("font-weight: bold; color: #ffb3b8;");
+    confirmCheckbox->setStyleSheet(tokensFor(m_themeMode).statusErrorStyle);
     layout->addWidget(confirmCheckbox);
 
     QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Cancel, &dialog);
     QPushButton* disengageButton = buttonBox->addButton("Disengage", QDialogButtonBox::AcceptRole);
     disengageButton->setEnabled(false);
-    disengageButton->setStyleSheet(
-        "QPushButton {"
-        "  background-color: #5a1d24;"
-        "  border: 1px solid #8b2c36;"
-        "  color: #ffb3b8;"
-        "  padding: 6px 12px;"
-        "  font-weight: bold;"
-        "}"
-        "QPushButton:enabled:hover {"
-        "  background-color: #6e2430;"
-        "}"
-        "QPushButton:disabled {"
-        "  background-color: #3a2a2c;"
-        "  color: #8a6f72;"
-        "}"
-    );
+    disengageButton->setStyleSheet(tokensFor(m_themeMode).dangerButtonStyle);
     QPushButton* cancelButton = buttonBox->button(QDialogButtonBox::Cancel);
     cancelButton->setDefault(true);
     cancelButton->setFocus();
@@ -467,6 +436,7 @@ void MainWindow::showDisengagedConfirmation() {
 }
 
 void MainWindow::showError(const QString& message) {
+    m_statusLabel->setStyleSheet(tokensFor(m_themeMode).statusErrorStyle);
     m_statusLabel->setText(message);
     m_statusLabel->setVisible(true);
 }
@@ -474,6 +444,18 @@ void MainWindow::showError(const QString& message) {
 void MainWindow::clearError() {
     m_statusLabel->clear();
     m_statusLabel->setVisible(false);
+}
+
+void MainWindow::applyTheme(ThemeMode mode) {
+    m_themeMode = mode;
+    qApp->setPalette(tokensFor(mode).palette);
+    applySemanticStyles();
+}
+
+void MainWindow::applySemanticStyles() {
+    const ThemeTokens& tokens = tokensFor(m_themeMode);
+    m_thinkfanWarningLabel->setStyleSheet(tokens.warningStyle);
+    m_disengagedButton->setStyleSheet(tokens.dangerButtonStyle);
 }
 
 QString MainWindow::formatFanLevel(const std::string& level) const {
@@ -559,7 +541,7 @@ void MainWindow::closeEvent(QCloseEvent* event) {
     if (!m_currentLevelDisplay.compare("Auto", Qt::CaseInsensitive) == 0 &&
         !m_currentLevelDisplay.contains("—", Qt::CaseInsensitive)) {
         m_statusLabel->setText(QString("Fan level left at %1 on exit").arg(m_currentLevelDisplay));
-        m_statusLabel->setStyleSheet("color: #ffd966; font-weight: bold;");
+        m_statusLabel->setStyleSheet(tokensFor(m_themeMode).statusWarnStyle);
         m_statusLabel->setVisible(true);
         // guard against dangling event pointer by re-triggering close
         m_pendingClose = true;

@@ -19,6 +19,7 @@
 #include "core/SensorReader.h"
 #include "core/ThinkfanDetector.h"
 #include "gui/PrivilegedFanController.h"
+#include "gui/Theme.h"
 
 #include <QThread>
 #include <QProcess>
@@ -64,6 +65,8 @@ private:
     void showDisengagedConfirmation();
     void showError(const QString& message);
     void clearError();
+    void applyTheme(ThemeMode mode);
+    void applySemanticStyles();
     QString formatFanLevel(const std::string& level) const;
     QString formatTemperature(std::optional<double> temp_c) const;
     QString formatRpm(std::optional<int> rpm) const;
@@ -100,6 +103,7 @@ private:
 
     QString m_currentLevelDisplay = "Auto";
     bool m_pendingClose = false;
+    ThemeMode m_themeMode = ThemeMode::Light;
 
     QSystemTrayIcon* m_trayIcon = nullptr;
     QMenu* m_trayMenu = nullptr;
