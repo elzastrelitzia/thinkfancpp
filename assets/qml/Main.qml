@@ -16,6 +16,7 @@ ApplicationWindow {
     Material.accent: Material.primary
 
     property bool exitPending: false
+    property bool disengagedAcknowledged: false
 
     Timer {
         id: exitTimer
@@ -198,7 +199,13 @@ ApplicationWindow {
             enabled: backend.readable
             Layout.fillWidth: true
             palette.buttonText: window.dangerText
-            onClicked: disengagedDialog.open()
+            onClicked: {
+                if (window.disengagedAcknowledged) {
+                    backend.setDisengaged()
+                } else {
+                    disengagedDialog.open()
+                }
+            }
         }
 
         Label {
@@ -220,6 +227,9 @@ ApplicationWindow {
         id: disengagedDialog
         darkMode: backend.darkMode
         dangerColor: window.errorColor
-        onConfirmed: backend.setDisengaged()
+        onConfirmed: {
+            window.disengagedAcknowledged = true
+            backend.setDisengaged()
+        }
     }
 }
