@@ -9,7 +9,7 @@ Dialog {
     title: "Confirm Disengaged Mode"
     anchors.centerIn: Overlay.overlay
     width: Math.min(Overlay.overlay ? Overlay.overlay.width - 48 : 460, 460)
-    standardButtons: Dialog.Cancel
+    standardButtons: Dialog.NoButton
     closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
 
     required property bool darkMode
@@ -50,14 +50,26 @@ Dialog {
             Material.foreground: dialog.dangerColor
         }
 
-        Button {
-            text: "Disengage"
-            enabled: confirmCheck.checked
-            Layout.alignment: Qt.AlignRight
-            Material.foreground: dialog.dangerColor
-            onClicked: {
-                dialog.close()
-                dialog.confirmed()
+        RowLayout {
+            spacing: 8
+            Layout.fillWidth: true
+
+            Item { Layout.fillWidth: true }
+
+            Button {
+                text: "Cancel"
+                flat: true
+                onClicked: dialog.reject()
+            }
+
+            Button {
+                text: "Disengage"
+                enabled: confirmCheck.checked
+                Material.foreground: dialog.dangerColor
+                onClicked: {
+                    dialog.close()
+                    dialog.confirmed()
+                }
             }
         }
     }
