@@ -50,8 +50,8 @@ bash build.sh --install
 
 ### Uninstall
 ```bash
-bash build.sh --Uninstall
-```
+bash build.sh --uninstall
+`
 
 ### Note
 
