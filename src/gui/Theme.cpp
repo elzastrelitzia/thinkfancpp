@@ -7,6 +7,8 @@ namespace thinkfan {
 
 namespace {
 
+QColor rgb(const char* hex) { return QColor(QString::fromLatin1(hex)); }
+
 QPalette makeDarkPalette() {
     QPalette palette;
     palette.setColor(QPalette::Window, QColor("#1e1f22"));
@@ -119,6 +121,36 @@ const ThemeTokens& lightTokens() {
     return tokens;
 }
 
+const QmlThemeTokens& darkQmlTokens() {
+    static const QmlThemeTokens tokens{
+        rgb("#1e1f22"),
+        rgb("#e6e6e6"),
+        rgb("#9a9a9a"),
+        rgb("#3d3418"),
+        rgb("#a67c00"),
+        rgb("#ffd966"),
+        rgb("#5fd38d"),
+        rgb("#ff6b6b"),
+        rgb("#ffb3b8"),
+    };
+    return tokens;
+}
+
+const QmlThemeTokens& lightQmlTokens() {
+    static const QmlThemeTokens tokens{
+        rgb("#f5f5f5"),
+        rgb("#1f1f1f"),
+        rgb("#6c757d"),
+        rgb("#fff4cc"),
+        rgb("#c99700"),
+        rgb("#664d00"),
+        rgb("#1b7f3a"),
+        rgb("#c62828"),
+        rgb("#842029"),
+    };
+    return tokens;
+}
+
 } // namespace
 
 ThemeMode themeModeFromPortalValue(uint32_t value) {
@@ -153,6 +185,10 @@ std::optional<uint32_t> parsePortalColorScheme(const QVariant& value) {
 
 const ThemeTokens& tokensFor(ThemeMode mode) {
     return mode == ThemeMode::Dark ? darkTokens() : lightTokens();
+}
+
+const QmlThemeTokens& qmlTokensFor(ThemeMode mode) {
+    return mode == ThemeMode::Dark ? darkQmlTokens() : lightQmlTokens();
 }
 
 } // namespace thinkfan

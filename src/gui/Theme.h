@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QColor>
 #include <QPalette>
 #include <QString>
 #include <Qt>
@@ -25,9 +26,22 @@ struct ThemeTokens {
     QPalette palette;
 };
 
+struct QmlThemeTokens {
+    QColor window;
+    QColor text;
+    QColor muted;
+    QColor warningBackground;
+    QColor warningBorder;
+    QColor warningText;
+    QColor success;
+    QColor error;
+    QColor dangerButtonText;
+};
+
 ThemeMode themeModeFromPortalValue(uint32_t value);
 ThemeMode themeModeFromColorScheme(Qt::ColorScheme scheme);
 std::optional<uint32_t> parsePortalColorScheme(const QVariant& value);
 const ThemeTokens& tokensFor(ThemeMode mode);
+const QmlThemeTokens& qmlTokensFor(ThemeMode mode);
 
 } // namespace thinkfan

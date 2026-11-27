@@ -11,7 +11,7 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
 # Qt6
-find_package(Qt6 REQUIRED COMPONENTS Widgets Core Concurrent Svg DBus)
+find_package(Qt6 REQUIRED COMPONENTS Widgets Core Concurrent Svg DBus Quick Qml QuickControls2)
 
 # GNU standard install directories
 include(GNUInstallDirs)
@@ -34,10 +34,10 @@ add_library(thinkfancpp_core STATIC
     src/core/ThinkfanDetector.h
     src/core/SensorReader.cpp
     src/core/SensorReader.h
+    src/gui/FanBackend.cpp
+    src/gui/FanBackend.h
     src/gui/PrivilegedFanController.cpp
     src/gui/PrivilegedFanController.h
-    src/gui/MainWindow.cpp
-    src/gui/MainWindow.h
     src/gui/Theme.cpp
     src/gui/Theme.h
     assets/thinkfancpp.qrc
@@ -54,14 +54,14 @@ target_compile_definitions(thinkfancpp_core PRIVATE
     HELPER_INSTALL_PATH="${HELPER_INSTALL_FULL_BINDIR}"
 )
 
-target_link_libraries(thinkfancpp_core PUBLIC Qt6::Core Qt6::Widgets Qt6::Concurrent Qt6::DBus Qt6::Svg)
+target_link_libraries(thinkfancpp_core PUBLIC Qt6::Core Qt6::Widgets Qt6::Concurrent Qt6::DBus Qt6::Svg Qt6::Quick Qt6::Qml Qt6::QuickControls2)
 
 # GUI executable
 add_executable(thinkfancpp
     src/main.cpp
 )
 
-target_link_libraries(thinkfancpp PRIVATE thinkfancpp_core Qt6::Widgets Qt6::Core)
+target_link_libraries(thinkfancpp PRIVATE thinkfancpp_core Qt6::Widgets Qt6::Core Qt6::Quick Qt6::Qml Qt6::QuickControls2)
 
 # Helper executable (privileged writer)
 add_executable(thinkfancpp-helper

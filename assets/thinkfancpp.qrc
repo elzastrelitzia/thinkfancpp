@@ -4,4 +4,8 @@
     <file>logo-sizes/logo_2048x2048.png</file>
     <file>logo-sizes/logo_4096x4096.png</file>
   </qresource>
+  <qresource prefix="/">
+    <file>qml/Main.qml</file>
+    <file>qml/DisengagedDialog.qml</file>
+  </qresource>
 </RCC>

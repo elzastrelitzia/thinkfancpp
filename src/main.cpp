@@ -1,42 +1,127 @@
+#include <QAction>
 #include <QApplication>
-#include <QPalette>
-#include <QStyleFactory>
+#include <QCoreApplication>
+#include <QIcon>
+#include <QMenu>
+#include <QObject>
+#include <QQmlApplicationEngine>
+#include <QQmlContext>
+#include <QQuickStyle>
+#include <QQuickWindow>
+#include <QSystemTrayIcon>
+#include <QUrl>
 
-#include "gui/MainWindow.h"
+#include "gui/FanBackend.h"
+
+namespace {
+
+class AppShell : public QObject {
+    Q_OBJECT
+    Q_PROPERTY(bool quitting READ quitting NOTIFY quittingChanged)
+
+public:
+    explicit AppShell(QSystemTrayIcon* tray, QObject* parent = nullptr) : QObject(parent), m_tray(tray) {}
+
+    bool quitting() const { return m_quitting; }
+
+    Q_INVOKABLE bool hideToTrayOnClose() {
+        if (m_quitting || m_tray == nullptr || !m_tray->isVisible()) {
+            return false;
+        }
+        auto* window = qobject_cast<QQuickWindow*>(parent());
+        if (window == nullptr) {
+            return false;
+        }
+        window->hide();
+        m_tray->showMessage(QStringLiteral("thinkfancpp"),
+                            QStringLiteral("Still running in the system tray."),
+                            QSystemTrayIcon::Information, 2000);
+        return true;
+    }
+
+    Q_INVOKABLE void requestQuit() {
+        if (m_quitting) {
+            return;
+        }
+        m_quitting = true;
+        emit quittingChanged();
+        if (m_tray != nullptr) {
+            m_tray->hide();
+        }
+        QCoreApplication::quit();
+    }
+
+    Q_INVOKABLE void showWindow() {
+        auto* window = qobject_cast<QQuickWindow*>(parent());
+        if (window == nullptr) {
+            return;
+        }
+        window->show();
+        window->raise();
+        window->requestActivate();
+    }
+
+signals:
+    void quittingChanged();
+
+private:
+    QSystemTrayIcon* m_tray = nullptr;
+    bool m_quitting = false;
+};
+
+} // namespace
 
 int main(int argc, char* argv[]) {
     Q_INIT_RESOURCE(thinkfancpp);
     QApplication app(argc, argv);
-    app.setApplicationName("thinkfancpp");
-    app.setApplicationVersion("0.1.0");
+    app.setApplicationName(QStringLiteral("thinkfancpp"));
+    app.setApplicationVersion(QStringLiteral("0.1.0"));
+    app.setWindowIcon(QIcon(QStringLiteral(":/icons/logo-sizes/logo_4096x4096.png")));
 
-    app.setStyle(QStyleFactory::create("Fusion"));
-    QPalette dark;
-    dark.setColor(QPalette::Window, QColor(45, 45, 45));
-    dark.setColor(QPalette::WindowText, Qt::white);
-    dark.setColor(QPalette::Base, QColor(30, 30, 30));
-    dark.setColor(QPalette::AlternateBase, QColor(45, 45, 45));
-    dark.setColor(QPalette::ToolTipBase, Qt::white);
-    dark.setColor(QPalette::ToolTipText, Qt::white);
-    dark.setColor(QPalette::Text, Qt::white);
-    dark.setColor(QPalette::Button, QColor(55, 55, 55));
-    dark.setColor(QPalette::ButtonText, Qt::white);
-    dark.setColor(QPalette::BrightText, Qt::red);
-    dark.setColor(QPalette::Link, QColor(42, 130, 218));
-    dark.setColor(QPalette::Highlight, QColor(42, 130, 218));
-    dark.setColor(QPalette::HighlightedText, Qt::black);
-    dark.setColor(QPalette::PlaceholderText, QColor(160, 160, 160));
+    qputenv("QT_QUICK_CONTROLS_MATERIAL_VARIANT", "Dense");
+    QQuickStyle::setStyle(QStringLiteral("Material"));
 
-    dark.setColor(QPalette::Disabled, QPalette::WindowText, QColor(127, 127, 127));
-    dark.setColor(QPalette::Disabled, QPalette::Text, QColor(127, 127, 127));
-    dark.setColor(QPalette::Disabled, QPalette::ButtonText, QColor(127, 127, 127));
-    dark.setColor(QPalette::Disabled, QPalette::Highlight, QColor(80, 80, 80));
-    dark.setColor(QPalette::Disabled, QPalette::HighlightedText, QColor(127, 127, 127));
+    thinkfan::FanBackend backend;
 
-    app.setPalette(dark);
+    QSystemTrayIcon tray(QIcon(QStringLiteral(":/icons/logo-sizes/logo_1280x1280.png")));
+    tray.setToolTip(QStringLiteral("thinkfancpp"));
+    QMenu trayMenu;
+    QAction* showAction = trayMenu.addAction(QStringLiteral("Show"));
+    QAction* quitAction = trayMenu.addAction(QStringLiteral("Quit"));
+    tray.setContextMenu(&trayMenu);
+    tray.show();
 
-    thinkfan::MainWindow window;
-    window.show();
+    QQmlApplicationEngine engine;
+    engine.rootContext()->setContextProperty(QStringLiteral("backend"), &backend);
+
+    AppShell appShell(&tray);
+    engine.rootContext()->setContextProperty(QStringLiteral("appShell"), &appShell);
+
+    QObject::connect(
+        &engine, &QQmlApplicationEngine::objectCreationFailed, &app,
+        []() { QCoreApplication::exit(-1); }, Qt::QueuedConnection);
+    engine.load(QUrl(QStringLiteral("qrc:/qml/Main.qml")));
+
+    const auto roots = engine.rootObjects();
+    if (roots.isEmpty()) {
+        return -1;
+    }
+    auto* window = qobject_cast<QQuickWindow*>(roots.first());
+    if (window == nullptr) {
+        return -1;
+    }
+
+    appShell.setParent(window);
+
+    QObject::connect(showAction, &QAction::triggered, &appShell, &AppShell::showWindow);
+    QObject::connect(quitAction, &QAction::triggered, &appShell, &AppShell::requestQuit);
+    QObject::connect(&tray, &QSystemTrayIcon::activated, &appShell, [&appShell](QSystemTrayIcon::ActivationReason reason) {
+        if (reason == QSystemTrayIcon::Trigger || reason == QSystemTrayIcon::DoubleClick) {
+            appShell.showWindow();
+        }
+    });
 
     return app.exec();
 }
+
+#include "main.moc"
