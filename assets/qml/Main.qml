@@ -55,7 +55,7 @@ ApplicationWindow {
         anchors.right: parent.right
         anchors.top: parent.top
         anchors.margins: 16
-        spacing: 12
+        spacing: 8
 
         GridLayout {
             columns: 2
@@ -148,7 +148,9 @@ ApplicationWindow {
         RowLayout {
             Layout.fillWidth: true
             Layout.leftMargin: 16
-            spacing: 8
+            Layout.topMargin: -16
+            Layout.bottomMargin: -8
+            spacing: 0
 
             Slider {
                 id: manualSlider
@@ -192,23 +194,28 @@ ApplicationWindow {
             }
         }
 
-        Button {
-            text: "Full-speed"
-            enabled: backend.readable
+        ColumnLayout {
             Layout.fillWidth: true
-            onClicked: backend.setFullSpeed()
-        }
+            spacing: 0
 
-        Button {
-            text: "Disengaged"
-            enabled: backend.readable
-            Layout.fillWidth: true
-            palette.buttonText: window.dangerText
-            onClicked: {
-                if (window.disengagedAcknowledged) {
-                    backend.setDisengaged()
-                } else {
-                    disengagedDialog.open()
+            Button {
+                text: "Full-speed"
+                enabled: backend.readable
+                Layout.fillWidth: true
+                onClicked: backend.setFullSpeed()
+            }
+
+            Button {
+                text: "Disengaged"
+                enabled: backend.readable
+                Layout.fillWidth: true
+                palette.buttonText: window.dangerText
+                onClicked: {
+                    if (window.disengagedAcknowledged) {
+                        backend.setDisengaged()
+                    } else {
+                        disengagedDialog.open()
+                    }
                 }
             }
         }
