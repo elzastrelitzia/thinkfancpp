@@ -7,7 +7,7 @@ ApplicationWindow {
     id: window
     visible: true
     minimumWidth: 300
-    minimumHeight: 320
+    minimumHeight: 280
     width: Math.max(minimumWidth, contentColumn.implicitWidth + 32)
     height: Math.max(minimumHeight, contentColumn.implicitHeight + 32)
     title: "thinkfancpp"
@@ -260,9 +260,9 @@ ApplicationWindow {
             }
         }
 
-        ColumnLayout {
+        RowLayout {
             Layout.fillWidth: true
-            spacing: 0
+            spacing: 8
 
             Button {
                 text: "Full-speed"

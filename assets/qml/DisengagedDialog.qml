@@ -54,17 +54,16 @@ Dialog {
             spacing: 8
             Layout.fillWidth: true
 
-            Item { Layout.fillWidth: true }
-
             Button {
                 text: "Cancel"
-                flat: true
+                Layout.fillWidth: true
                 onClicked: dialog.reject()
             }
 
             Button {
                 text: "Disengage"
                 enabled: confirmCheck.checked
+                Layout.fillWidth: true
                 Material.foreground: dialog.dangerColor
                 onClicked: {
                     dialog.close()
