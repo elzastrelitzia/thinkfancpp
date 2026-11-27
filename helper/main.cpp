@@ -22,7 +22,16 @@ bool verify_write(const std::string& procfs_line) {
 
     if (procfs_line.rfind("level ", 0) == 0) {
         std::string expected_level = procfs_line.substr(6);
-        return state.readable && state.level == expected_level;
+        if (!state.readable) {
+            return false;
+        }
+        if (state.level == expected_level) {
+            return true;
+        }
+        const auto is_max_level = [](const std::string& level) {
+            return level == "full-speed" || level == "disengaged" || level == "7";
+        };
+        return is_max_level(expected_level) && is_max_level(state.level);
     }
     if (procfs_line == "enable") {
         return state.readable && state.enabled;
