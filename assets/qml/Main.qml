@@ -147,7 +147,6 @@ ApplicationWindow {
 
         RowLayout {
             Layout.fillWidth: true
-            Layout.leftMargin: 16
             Layout.topMargin: -16
             Layout.bottomMargin: -8
             spacing: 0
@@ -160,8 +159,22 @@ ApplicationWindow {
                 stepSize: 1
                 snapMode: Slider.SnapAlways
                 enabled: backend.readable && manualRadio.checked
+                implicitHeight: 44
+                leftPadding: 0
+                rightPadding: 0
 
                 property bool syncing: false
+                readonly property real trackH: 12
+                readonly property real gap: 6
+                readonly property real handleW: pressed ? 2 : 4
+                readonly property real handleH: 18
+                readonly property real trackR: 8
+                readonly property color activeColor: enabled ? Material.accent : window.mutedColor
+                readonly property color inactiveColor: enabled
+                    ? Qt.rgba(Material.accent.r, Material.accent.g, Material.accent.b, 0.2)
+                    : Qt.rgba(window.mutedColor.r, window.mutedColor.g, window.mutedColor.b, 0.2)
+                readonly property color stopActiveColor: Qt.rgba(window.Material.background.r, window.Material.background.g, window.Material.background.b, 0.9)
+                readonly property real stopHideRadius: gap + handleW
 
                 function syncFromBackend() {
                     if (pressed || syncing) {
@@ -182,6 +195,59 @@ ApplicationWindow {
                     if (!pressed) {
                         backend.setManual(Math.round(value))
                     }
+                }
+
+                background: Item {
+                    x: manualSlider.leftPadding
+                    y: manualSlider.topPadding + (manualSlider.availableHeight - height) / 2
+                    width: manualSlider.availableWidth
+                    height: manualSlider.trackH
+
+                    property real handleX: manualSlider.visualPosition * (width - manualSlider.handleW) + manualSlider.handleW / 2
+                    property real leftW: Math.max(0, handleX - manualSlider.gap - manualSlider.handleW / 2)
+                    property real rightX: Math.min(width, handleX + manualSlider.gap + manualSlider.handleW / 2)
+
+                    Rectangle {
+                        x: 0
+                        width: parent.leftW
+                        height: parent.height
+                        radius: manualSlider.trackR
+                        color: manualSlider.activeColor
+                    }
+
+                    Rectangle {
+                        x: parent.rightX
+                        width: Math.max(0, parent.width - x)
+                        height: parent.height
+                        radius: manualSlider.trackR
+                        color: manualSlider.inactiveColor
+                    }
+
+                    Repeater {
+                        model: 8
+                        delegate: Rectangle {
+                            required property int index
+                            readonly property real pos: index / 7
+                            readonly property real cx: pos * (parent.width - manualSlider.handleW) + manualSlider.handleW / 2
+                            readonly property bool inActive: cx < parent.leftW
+                            x: cx - width / 2
+                            y: (parent.height - height) / 2
+                            width: 4
+                            height: 4
+                            radius: 2
+                            color: inActive ? manualSlider.stopActiveColor : manualSlider.activeColor
+                            opacity: (cx > parent.handleX - manualSlider.stopHideRadius && cx < parent.handleX + manualSlider.stopHideRadius) ? 0 : 0.7
+                        }
+                    }
+                }
+
+                handle: Rectangle {
+                    x: manualSlider.leftPadding + manualSlider.visualPosition * (manualSlider.availableWidth - width)
+                    y: manualSlider.topPadding + (manualSlider.availableHeight - height) / 2
+                    width: manualSlider.handleW
+                    height: manualSlider.handleH
+                    radius: width / 2
+                    color: manualSlider.activeColor
                 }
             }
 
