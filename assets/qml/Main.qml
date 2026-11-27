@@ -98,7 +98,23 @@ ApplicationWindow {
             font.pixelSize: 14
         }
 
-        ButtonGroup { id: modeGroup }
+        ButtonGroup {
+            id: modeGroup
+            buttons: [autoRadio, manualRadio]
+
+            function syncFromFanMode() {
+                modeGroup.checkedButton = backend.fanMode === "auto" ? autoRadio
+                    : backend.fanMode === "manual" ? manualRadio
+                    : null
+            }
+
+            Component.onCompleted: syncFromFanMode()
+        }
+
+        Connections {
+            target: backend
+            function onFanModeChanged() { modeGroup.syncFromFanMode() }
+        }
 
         RowLayout {
             Layout.fillWidth: true
@@ -107,7 +123,6 @@ ApplicationWindow {
             RadioButton {
                 id: autoRadio
                 text: "Auto"
-                checked: true
                 enabled: backend.readable
                 ButtonGroup.group: modeGroup
                 palette.windowText: autoRadio.enabled ? window.textColor : window.mutedColor

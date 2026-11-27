@@ -112,6 +112,7 @@ FanBackend::~FanBackend() {
 QString FanBackend::cpuTemp() const { return m_cpuTemp; }
 QString FanBackend::fanRpm() const { return m_fanRpm; }
 QString FanBackend::fanLevel() const { return m_fanLevel; }
+QString FanBackend::fanMode() const { return m_fanMode; }
 bool FanBackend::fanEnabled() const { return m_fanEnabled; }
 bool FanBackend::readable() const { return m_readable; }
 QString FanBackend::statusText() const { return m_statusText; }
@@ -183,6 +184,7 @@ void FanBackend::updateUiFromState(const ProcFanState& fanState, const SensorSna
     const QString cpuTemp = formatTemperature(sensors.cpu_temp_c);
     const QString fanRpm = formatRpm(sensors.fan_rpm);
     const QString fanLevel = formatFanLevel(fanState.level);
+    const QString fanMode = formatFanMode(fanState.level);
     const bool fanEnabled = fanState.enabled;
     const bool readable = fanState.readable;
 
@@ -197,6 +199,10 @@ void FanBackend::updateUiFromState(const ProcFanState& fanState, const SensorSna
     if (m_fanLevel != fanLevel) {
         m_fanLevel = fanLevel;
         emit fanLevelChanged();
+    }
+    if (m_fanMode != fanMode) {
+        m_fanMode = fanMode;
+        emit fanModeChanged();
     }
     if (m_fanEnabled != fanEnabled) {
         m_fanEnabled = fanEnabled;
@@ -313,6 +319,22 @@ QString FanBackend::formatFanLevel(const std::string& level) const {
         return QStringLiteral("—");
     }
     return QString::fromStdString(level);
+}
+
+QString FanBackend::formatFanMode(const std::string& level) const {
+    if (level == "auto") {
+        return QStringLiteral("auto");
+    }
+    if (level == "full-speed" || level == "disengaged") {
+        return QString::fromStdString(level);
+    }
+    bool ok = false;
+    const auto qlevel = QString::fromStdString(level);
+    qlevel.toInt(&ok);
+    if (ok) {
+        return QStringLiteral("manual");
+    }
+    return QStringLiteral("auto");
 }
 
 QString FanBackend::formatTemperature(std::optional<double> temp_c) const {

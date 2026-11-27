@@ -26,6 +26,7 @@ class FanBackend : public QObject {
     Q_PROPERTY(QString cpuTemp READ cpuTemp NOTIFY cpuTempChanged)
     Q_PROPERTY(QString fanRpm READ fanRpm NOTIFY fanRpmChanged)
     Q_PROPERTY(QString fanLevel READ fanLevel NOTIFY fanLevelChanged)
+    Q_PROPERTY(QString fanMode READ fanMode NOTIFY fanModeChanged)
     Q_PROPERTY(bool fanEnabled READ fanEnabled NOTIFY fanEnabledChanged)
     Q_PROPERTY(bool readable READ readable NOTIFY readableChanged)
     Q_PROPERTY(QString statusText READ statusText NOTIFY statusTextChanged)
@@ -49,6 +50,7 @@ public:
     QString cpuTemp() const;
     QString fanRpm() const;
     QString fanLevel() const;
+    QString fanMode() const;
     bool fanEnabled() const;
     bool readable() const;
     QString statusText() const;
@@ -78,6 +80,7 @@ signals:
     void cpuTempChanged();
     void fanRpmChanged();
     void fanLevelChanged();
+    void fanModeChanged();
     void fanEnabledChanged();
     void readableChanged();
     void statusTextChanged();
@@ -102,6 +105,7 @@ private:
     void applyPortalThemeValue(const QVariant& value);
     void applySystemThemeFallback();
     QString formatFanLevel(const std::string& level) const;
+    QString formatFanMode(const std::string& level) const;
     QString formatTemperature(std::optional<double> temp_c) const;
     QString formatRpm(std::optional<int> rpm) const;
     void setStatusText(const QString& text);
@@ -109,6 +113,7 @@ private:
     QString m_cpuTemp = QStringLiteral("—");
     QString m_fanRpm = QStringLiteral("—");
     QString m_fanLevel = QStringLiteral("—");
+    QString m_fanMode = QStringLiteral("auto");
     bool m_fanEnabled = false;
     bool m_readable = false;
     QString m_statusText;
