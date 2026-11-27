@@ -265,17 +265,24 @@ ApplicationWindow {
             spacing: 8
 
             Button {
+                id: fullSpeedButton
+                readonly property bool active: backend.fanMode === "full-speed"
                 text: "Full-speed"
                 enabled: backend.readable
                 Layout.fillWidth: true
+                Material.background: active ? window.Material.foreground : undefined
+                Material.foreground: active ? window.Material.background : undefined
                 onClicked: backend.setFullSpeed()
             }
 
             Button {
+                id: disengagedButton
+                readonly property bool active: backend.fanMode === "disengaged"
                 text: "Disengaged"
                 enabled: backend.readable
                 Layout.fillWidth: true
-                palette.buttonText: window.dangerText
+                Material.background: active ? window.Material.foreground : undefined
+                Material.foreground: active ? window.Material.background : window.dangerText
                 onClicked: {
                     if (window.disengagedAcknowledged) {
                         backend.setDisengaged()
