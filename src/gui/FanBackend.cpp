@@ -145,7 +145,7 @@ void FanBackend::setManual(int value) {
     m_controller->setLevel(QString::number(m_manualValue));
 }
 
-void FanBackend::setFullSpeed() { m_controller->setLevel(QStringLiteral("full-speed")); }
+void FanBackend::setFullSpeed() { m_controller->setLevel(QStringLiteral("7")); }
 void FanBackend::setDisengaged() { m_controller->setLevel(QStringLiteral("disengaged")); }
 void FanBackend::refresh() { onPollTimer(); }
 void FanBackend::showStatus(const QString& text) { setStatusText(text); }
@@ -325,8 +325,11 @@ QString FanBackend::formatFanMode(const std::string& level) const {
     if (level == "auto") {
         return QStringLiteral("auto");
     }
-    if (level == "full-speed" || level == "disengaged") {
-        return QString::fromStdString(level);
+    if (level == "disengaged") {
+        return QStringLiteral("disengaged");
+    }
+    if (level == "full-speed" || level == "7") {
+        return QStringLiteral("full-speed");
     }
     bool ok = false;
     const auto qlevel = QString::fromStdString(level);
