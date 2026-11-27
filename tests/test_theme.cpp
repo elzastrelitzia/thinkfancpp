@@ -1,6 +1,7 @@
 #include <cassert>
 #include <cstdint>
 
+#include <QColor>
 #include <QDBusVariant>
 #include <QVariant>
 
@@ -9,6 +10,7 @@
 int main() {
     using thinkfan::ThemeMode;
     using thinkfan::parsePortalColorScheme;
+    using thinkfan::qmlTokensFor;
     using thinkfan::themeModeFromPortalValue;
     using thinkfan::tokensFor;
 
@@ -22,6 +24,17 @@ int main() {
     assert(dark.statusErrorStyle != light.statusErrorStyle);
     assert(dark.warningStyle.contains("#"));
     assert(light.warningStyle.contains("#"));
+
+    const auto& qdark = qmlTokensFor(ThemeMode::Dark);
+    const auto& qlight = qmlTokensFor(ThemeMode::Light);
+    assert(qdark.window.name(QColor::HexRgb) == QStringLiteral("#1e1f22"));
+    assert(qlight.window.name(QColor::HexRgb) == QStringLiteral("#f5f5f5"));
+    assert(qdark.text != qlight.text);
+    assert(qdark.warningText != qlight.warningText);
+    assert(qdark.error != qlight.error);
+    assert(qdark.success != qlight.success);
+    assert(qdark.muted.alpha() > 0);
+    assert(qdark.dangerButtonText.isValid());
 
     const QVariant nested = QVariant::fromValue(
         QDBusVariant(QVariant::fromValue(QDBusVariant(QVariant::fromValue(uint32_t{1})))));
