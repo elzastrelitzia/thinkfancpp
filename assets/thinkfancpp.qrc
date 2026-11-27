@@ -1,8 +1,9 @@
 <RCC>
   <qresource prefix="/icons">
-    <file>logo-sizes/logo_1280x1280.png</file>
-    <file>logo-sizes/logo_2048x2048.png</file>
-    <file>logo-sizes/logo_4096x4096.png</file>
+    <file>logo-sizes/logoLight_1280x1280.png</file>
+    <file>logo-sizes/logoDark_1280x1280.png</file>
+    <file>logo-sizes/logoLight_2048x2048.png</file>
+    <file>logo-sizes/logoLight_4096x4096.png</file>
   </qresource>
   <qresource prefix="/">
     <file>qml/Main.qml</file>

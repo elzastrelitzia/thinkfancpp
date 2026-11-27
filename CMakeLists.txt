@@ -128,12 +128,12 @@ install(FILES packaging/thinkfancpp.desktop
     DESTINATION ${CMAKE_INSTALL_DATADIR}/applications
 )
 
-install(FILES assets/logo-sizes/logo_1280x1280.png
+install(FILES assets/logo-sizes/logoLight_1280x1280.png
     DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/1280x1280/apps
     RENAME thinkfancpp.png
 )
 
-install(FILES assets/logo-sizes/logo_1280x1280.png
+install(FILES assets/logo-sizes/logoLight_1280x1280.png
     DESTINATION ${CMAKE_INSTALL_DATADIR}/pixmaps
     RENAME thinkfancpp.png
 )

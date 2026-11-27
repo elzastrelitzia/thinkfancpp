@@ -76,14 +76,21 @@ int main(int argc, char* argv[]) {
     QApplication app(argc, argv);
     app.setApplicationName(QStringLiteral("thinkfancpp"));
     app.setApplicationVersion(QStringLiteral("0.1.0"));
-    app.setWindowIcon(QIcon(QStringLiteral(":/icons/logo-sizes/logo_4096x4096.png")));
+    app.setWindowIcon(QIcon(QStringLiteral(":/icons/logo-sizes/logoLight_4096x4096.png")));
 
     qputenv("QT_QUICK_CONTROLS_MATERIAL_VARIANT", "Dense");
     QQuickStyle::setStyle(QStringLiteral("Material"));
 
     thinkfan::FanBackend backend;
 
-    QSystemTrayIcon tray(QIcon(QStringLiteral(":/icons/logo-sizes/logo_1280x1280.png")));
+    QSystemTrayIcon tray;
+    auto updateTrayIcon = [&tray, &backend]() {
+        tray.setIcon(QIcon(backend.darkMode()
+            ? QStringLiteral(":/icons/logo-sizes/logoDark_1280x1280.png")
+            : QStringLiteral(":/icons/logo-sizes/logoLight_1280x1280.png")));
+    };
+    updateTrayIcon();
+    QObject::connect(&backend, &thinkfan::FanBackend::darkModeChanged, &tray, updateTrayIcon);
     tray.setToolTip(QStringLiteral("thinkfancpp"));
     QMenu trayMenu;
     QAction* showAction = trayMenu.addAction(QStringLiteral("Show"));
