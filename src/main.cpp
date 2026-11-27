@@ -94,6 +94,12 @@ int main(int argc, char* argv[]) {
     tray.setToolTip(QStringLiteral("thinkfancpp"));
     QMenu trayMenu;
     QAction* showAction = trayMenu.addAction(QStringLiteral("Show"));
+    trayMenu.addSeparator();
+    QAction* autoAction = trayMenu.addAction(QStringLiteral("Auto"));
+    autoAction->setCheckable(true);
+    QAction* fullSpeedAction = trayMenu.addAction(QStringLiteral("Full-speed"));
+    fullSpeedAction->setCheckable(true);
+    trayMenu.addSeparator();
     QAction* quitAction = trayMenu.addAction(QStringLiteral("Quit"));
     tray.setContextMenu(&trayMenu);
     tray.show();
@@ -121,7 +127,17 @@ int main(int argc, char* argv[]) {
     appShell.setParent(window);
 
     QObject::connect(showAction, &QAction::triggered, &appShell, &AppShell::showWindow);
+    QObject::connect(autoAction, &QAction::triggered, &backend, [&backend]() { backend.setAuto(); });
+    QObject::connect(fullSpeedAction, &QAction::triggered, &backend, [&backend]() { backend.setFullSpeed(); });
     QObject::connect(quitAction, &QAction::triggered, &appShell, &AppShell::requestQuit);
+
+    auto syncTrayMode = [&backend, autoAction, fullSpeedAction]() {
+        const QString mode = backend.fanMode();
+        autoAction->setChecked(mode == QStringLiteral("auto"));
+        fullSpeedAction->setChecked(mode == QStringLiteral("full-speed"));
+    };
+    syncTrayMode();
+    QObject::connect(&backend, &thinkfan::FanBackend::fanModeChanged, &trayMenu, syncTrayMode);
     QObject::connect(&tray, &QSystemTrayIcon::activated, &appShell, [&appShell](QSystemTrayIcon::ActivationReason reason) {
         if (reason == QSystemTrayIcon::Trigger || reason == QSystemTrayIcon::DoubleClick) {
             appShell.showWindow();
