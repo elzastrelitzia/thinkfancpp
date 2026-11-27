@@ -6,8 +6,10 @@ import QtQuick.Layouts
 ApplicationWindow {
     id: window
     visible: true
-    width: 520
-    height: 460
+    minimumWidth: 300
+    minimumHeight: 320
+    width: Math.max(minimumWidth, contentColumn.implicitWidth + 32)
+    height: Math.max(minimumHeight, contentColumn.implicitHeight + 32)
     title: "thinkfancpp"
 
     Material.theme: backend.darkMode ? Material.Dark : Material.Light
@@ -48,7 +50,10 @@ ApplicationWindow {
     readonly property color errorColor: backend.themeErrorColor
 
     ColumnLayout {
-        anchors.fill: parent
+        id: contentColumn
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: parent.top
         anchors.margins: 16
         spacing: 12
 
@@ -220,7 +225,6 @@ ApplicationWindow {
                      : window.textColor
         }
 
-        Item { Layout.fillHeight: true }
     }
 
     DisengagedDialog {
